@@ -1,2 +1,5 @@
 ol*
+*/*.tfvars
+*/.terraform*
+*tfstate*
 
