@@ -17,15 +17,13 @@ provider "google" {
 
 resource "google_compute_instance" "vm_instance" {
   name         = "terraform-instance"
-  machine_type = "e2-standard-4"
+  machine_type = "e2-medium"
   tags         = ["spark", "prefect"]
 
   boot_disk {
     auto_delete = true
     initialize_params {
-      image = "projects/ubuntu-os-cloud/global/images/ubuntu-2204-jammy-v20230429"
-      size  = 30
-      type  = "pd-balanced"
+      image = "cos-cloud/cos-stable"
     }
   }
 
@@ -35,6 +33,10 @@ resource "google_compute_instance" "vm_instance" {
     }
 
     subnetwork = "projects/open-library-pipeline/regions/us-east4/subnetworks/default"
+  }
+
+  metadata = {
+    gce-container-declaration = module.gce-advanced-container.metadata_value
   }
 
   scheduling {
@@ -49,4 +51,13 @@ resource "google_compute_instance" "vm_instance" {
     enable_secure_boot          = false
     enable_vtpm                 = true
   }
+}
+
+module "gce-advanced-container" {
+  source = "terraform-google-modules/container-vm/google"
+  container = {
+    image = "docker.io/prefect:2-python3.10"
+  }
+
+  restart_policy = "Always"
 }
