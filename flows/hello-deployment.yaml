@@ -1,0 +1,53 @@
+###
+### A complete description of a Prefect Deployment for flow 'hello'
+###
+name: hello-world
+description: null
+version: 7262bb6c14860823e72d755f70341745
+# The work queue that will handle this deployment's runs
+work_queue_name: default
+work_pool_name: null
+tags: []
+parameters: {}
+schedule: null
+is_schedule_active: null
+infra_overrides: {}
+infrastructure:
+  type: process
+  env: {}
+  labels: {}
+  name: null
+  command: null
+  stream_output: true
+  working_dir: null
+  block_type_slug: process
+  _block_type_slug: process
+
+###
+### DO NOT EDIT BELOW THIS LINE
+###
+flow_name: hello
+manifest_path: null
+storage:
+  bucket_path: open-library-prefect-storage
+  service_account_info: '**********'
+  project: null
+  _block_document_id: b45b9163-cbd2-4d21-8db3-11455251da72
+  _block_document_name: open-library-pipeline-gcs-storage
+  _is_anonymous: false
+  block_type_slug: gcs
+  _block_type_slug: gcs
+path: ''
+entrypoint: hello.py:hello
+parameter_openapi_schema:
+  title: Parameters
+  type: object
+  properties:
+    user_input:
+      title: user_input
+      default: World
+      position: 0
+      type: string
+  required: null
+  definitions: null
+timestamp: '2023-05-10T02:28:07.790689+00:00'

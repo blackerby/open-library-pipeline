@@ -56,7 +56,7 @@ resource "google_compute_instance" "vm_instance" {
 module "gce-advanced-container" {
   source = "terraform-google-modules/container-vm/google"
   container = {
-    image = "docker.io/prefect:2-python3.10"
+    image = "docker.io/blackerby/open_library_pipeline:latest"
   }
 
   restart_policy = "Always"
