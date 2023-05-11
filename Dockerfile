@@ -1,19 +1,34 @@
 FROM prefecthq/prefect:2-python3.10
 
-COPY requirements.txt .
-RUN pip install -r requirements.txt --trusted-host pypi.python.org --no-cache-dir
-
 ARG PREFECT_API_KEY
 ENV PREFECT_API_KEY=$PREFECT_API_KEY
 ARG PREFECT_API_URL
 ENV PREFECT_API_URL=$PREFECT_API_URL
 ARG PREFECT_WORKSPACE
 ENV PREFECT_WORKSPACE=$PREFECT_WORKSPACE
-ENV PYTHONUNBUFFERED True
-ENV EXTRA_PIP_PACKAGES gcsfs
+ARG SCRIPT_NAME
+ENV SCRIPT_NAME=$SCRIPT_NAME
+ARG FLOW_TAG
+ENV FLOW_TAG=$FLOW_TAG
+ARG DEPLOYMENT_NAME
+ENV DEPLOYMENT_NAME=$DEPLOYMENT_NAME
+ARG INTERVAL
+ENV INTERVAL=$INTERVAL
+
+COPY requirements.txt .
+RUN pip install -r requirements.txt --trusted-host pypi.python.org --no-cache-dir
 
 COPY flows/ /opt/prefect/flows/
+WORKDIR /opt/prefect/flows
 
-CMD prefect cloud login -k $PREFECT_API_KEY -w $PREFECT_WORKSPACE
-CMD prefect config set PREFECT_API_URL=$PREFECT_API_URL
-ENTRYPOINT prefect agent start -q default
+COPY run.sh .
+RUN chmod +x run.sh
+
+ENTRYPOINT ./run.sh \
+    $PREFECT_API_KEY \
+    $PREFECT_WORKSPACE \
+    $PREFECT_API_URL \
+    $SCRIPT_NAME \
+    $FLOW_TAG \
+    $DEPLOYMENT_NAME \
+    $INTERVAL

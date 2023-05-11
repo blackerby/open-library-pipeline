@@ -16,7 +16,7 @@ It is reasonable to leave the data lake up and running, but if for some reason i
 
 ### Cloud Compute
 
-To set up the Google Compute Engine VM that runs a Prefect agent, from the root directory
+To set up the Google Compute Engine VM that runs a Docker container for this project, from the root directory.
 
 1. `cd compute`
 2. `terraform apply`
@@ -26,20 +26,15 @@ It is reasonable to take down the VM when it is not in use. To do so, run `terra
 
 ## Orchestration
 
-The project uses Prefect Cloud to run flows instead of a local Prefect installation. Follow these steps to set up Prefect Cloud to run flows.
+The `Dockerfile` builds an image that connects to a Prefect Cloud account and starts an agent that can run flows. `build.sh` is the harness for `docker build`. It expects three variables (`PREFECT_API_KEY`, `PREFECT_WORKSPACE`, and `PREFECT_API_URL`) to be set in the environment and expects four command line arguments: `SCRIPT_NAME`, `FLOW_TAG`, `DEPLOYMENT_NAME`, and `INTERVAL` (in seconds).
 
-1. Log in to Prefect Cloud with `prefect cloud login`
-2. Run flows locally to register them in the cloud UI. For example, from the root directory `python flows/hello.py`
-3. In the `flows` directory, run `prefect deployment build hello.py:hello --name hello-world --storage-block gcs/open-library-pipeline-gcs-storage` to create a deployment and store the flow code in the cloud
-4. Apply the deployment with `prefect deployment apply flows/hello-deployment.yaml`
+The heart of the `Dockerfile` is `run.sh`, which logs into a Prefect Cloud account, sets the Prefect API URL, builds, schedules, and applies a deployment, and starts a Prefect agent. For this to work, you must have previously configured remote storage for the flow code, which is probably easiest to do in the Prefect Cloud UI.
 
-### Prefect Agent Container
-
-The `Dockerfile` builds an image that connects to a Prefect Cloud account and starts an agent that can run flows. Use `docker build --build-arg PREFECT_API_KEY=$PREFECT_API_KEY --build-arg PREFECT_API_URL=$PREFECT_API_URL --build-arg PREFECT_WORKSPACE=$PREFECT_WORKSPACE -t blackerby/open_library_pipeline .` to build the image. Use `docker push blackerby/open_library_pipeline:latest` to push the image to Docker Hub. `compute/main.tf` will create a container from this image and run it on the Google Cloud Engine VM it provisions.
+Push the image you build to Docker Hub. `compute/main.tf` will create a container from this image and run it on the Google Cloud Engine VM it provisions.
 
 ### Running Flows
 
-To run using deployments, use the Prefect Cloud UI.
+The deployment built by the Docker container auto schedules flow runs based on the value of the `INTERVAL` parameter, and the Prefect agent running in the container runs them. You can also run flows from the Prefect Cloud UI.
 
 ## Data
 
@@ -67,7 +62,7 @@ To run using deployments, use the Prefect Cloud UI.
 - [ ] Running `docker history blackerby/open_library_pipeline` will display sensitive information (e.g., `PREFECT_API_KEY`). Look into how to pass secrets when building a Docker image.
 - [ ] Experiment with running an actual data processing flow.
 - [ ] Look into
-  - [ ] Performing initial flow runs in Docker container
-  - [ ] Building and applying deployments in Docker container
+  - [x] Performing initial flow runs in Docker container
+  - [x] Building and applying deployments in Docker container
   - [ ] Prefect Cloud best practices for Docker containers
 - [ ] Investigate `.prefectignore` best practices
