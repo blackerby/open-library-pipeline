@@ -6,23 +6,39 @@ Workspace for [DataTalksClub's Data Engineering Zoomcamp](https://github.com/Dat
 
 ### Cloud Storage
 
-To set up the Google Cloud Storage data lake, from the root directory
+To set up the Google Cloud Storage data lake and Prefect remote storage from the root directory, run
 
-1. `cd storage`
-2. `terraform apply`
-3. Enter `yes`
+```bash
+make apply-storage
+```
 
-It is reasonable to leave the data lake up and running, but if for some reason it needs to be removed, run `terraform destroy` in the `storage` directory.
+and follow the prompts.
+
+It is reasonable to leave the data lake up and running, but if for some reason it needs to be removed, run
+
+```bash
+make destroy-storage
+```
+
+in the root directory.
 
 ### Cloud Compute
 
-To set up the Google Compute Engine VM that runs a Docker container for this project, from the root directory.
+To set up the Google Compute Engine VM that runs a Docker container for this project from the root directory, run
 
-1. `cd compute`
-2. `terraform apply`
-3. Enter `yes`
+```bash
+make apply-compute
+```
 
-It is reasonable to take down the VM when it is not in use. To do so, run `terraform destroy` in the compute directory.
+and follow the prompts.
+
+It is reasonable to take down the VM when it is not in use. To do so, run
+
+```bash
+make destroy-compute
+```
+
+in the root directory.
 
 ## Orchestration
 
@@ -35,6 +51,18 @@ Push the image you build to Docker Hub. `compute/main.tf` will create a containe
 ### Running Flows
 
 The deployment built by the Docker container auto schedules flow runs based on the value of the `INTERVAL` parameter, and the Prefect agent running in the container runs them. You can also run flows from the Prefect Cloud UI.
+
+## Running the Pipeline End-to-End
+
+```bash
+  make up SCRIPT_NAME=script_name.py FLOW_TAG=flow_name DEPLOYMENT_NAME=deployment_name INTERVAL=a_number IMAGE_NAME=docker_image_name_with_tag
+```
+
+## Taking the Pipeline Down
+
+```bash
+make down DEPLOYMENT_NAME="flow_name/deployment_name"
+```
 
 ## Data
 
