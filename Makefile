@@ -25,7 +25,7 @@ build-and-push : build-image push-image
 
 .PHONY : build-image
 build-image :
-	./build.sh $(SCRIPT_NAME) $(FLOW_TAG) $(DEPLOYMENT_NAME) $(INTERVAL)
+	./build.sh $(SCRIPT_NAME) $(FLOW_TAG) $(DEPLOYMENT_NAME) $(CRON)
 
 .PHONY : push-image
 push-image :

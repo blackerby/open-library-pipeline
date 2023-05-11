@@ -42,7 +42,7 @@ in the root directory.
 
 ## Orchestration
 
-The `Dockerfile` builds an image that connects to a Prefect Cloud account and starts an agent that can run flows. `build.sh` is the harness for `docker build`. It expects three variables (`PREFECT_API_KEY`, `PREFECT_WORKSPACE`, and `PREFECT_API_URL`) to be set in the environment and expects four command line arguments: `SCRIPT_NAME`, `FLOW_TAG`, `DEPLOYMENT_NAME`, and `INTERVAL` (in seconds).
+The `Dockerfile` builds an image that connects to a Prefect Cloud account and starts an agent that can run flows. `build.sh` is the harness for `docker build`. It expects three variables (`PREFECT_API_KEY`, `PREFECT_WORKSPACE`, and `PREFECT_API_URL`) to be set in the environment and expects four command line arguments: `SCRIPT_NAME`, `FLOW_TAG`, `DEPLOYMENT_NAME`, and `CRON` (a `cron` string).
 
 The heart of the `Dockerfile` is `run.sh`, which logs into a Prefect Cloud account, sets the Prefect API URL, builds, schedules, and applies a deployment, and starts a Prefect agent. For this to work, you must have previously configured remote storage for the flow code, which is probably easiest to do in the Prefect Cloud UI.
 
@@ -50,12 +50,12 @@ Push the image you build to Docker Hub. `compute/main.tf` will create a containe
 
 ### Running Flows
 
-The deployment built by the Docker container auto schedules flow runs based on the value of the `INTERVAL` parameter, and the Prefect agent running in the container runs them. You can also run flows from the Prefect Cloud UI.
+The deployment built by the Docker container auto schedules flow runs based on the value of the `CRON` parameter, and the Prefect agent running in the container runs them. You can also run flows from the Prefect Cloud UI. Quote the `cron` string carefully, otherwise your deployment will not complete. E.g., `"'5 * * * *'"`
 
 ## Running the Pipeline End-to-End
 
 ```bash
-  make up SCRIPT_NAME=script_name.py FLOW_TAG=flow_name DEPLOYMENT_NAME=deployment_name INTERVAL=a_number IMAGE_NAME=docker_image_name_with_tag
+  make up SCRIPT_NAME=script_name.py FLOW_TAG=flow_name DEPLOYMENT_NAME=deployment_name CRON=a_cron_string IMAGE_NAME=docker_image_name_with_tag
 ```
 
 ## Taking the Pipeline Down

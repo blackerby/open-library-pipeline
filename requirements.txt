@@ -56,9 +56,11 @@ markdown-it-py==2.2.0
 MarkupSafe==2.1.2
 mdurl==0.1.2
 multidict==6.0.4
+numpy==1.24.3
 oauthlib==3.2.2
 orjson==3.8.12
 packaging==23.1
+pandas==2.0.1
 pathspec==0.11.1
 pendulum==2.1.2
 prefect==2.10.8

@@ -12,8 +12,8 @@ ARG FLOW_TAG
 ENV FLOW_TAG=$FLOW_TAG
 ARG DEPLOYMENT_NAME
 ENV DEPLOYMENT_NAME=$DEPLOYMENT_NAME
-ARG INTERVAL
-ENV INTERVAL=$INTERVAL
+ARG CRON
+ENV CRON=$CRON
 
 COPY requirements.txt .
 RUN pip install -r requirements.txt --trusted-host pypi.python.org --no-cache-dir
@@ -31,4 +31,4 @@ ENTRYPOINT ./run.sh \
     $SCRIPT_NAME \
     $FLOW_TAG \
     $DEPLOYMENT_NAME \
-    $INTERVAL
+    $CRON
