@@ -58,7 +58,7 @@ The deployment built by the Docker container auto schedules flow runs based on t
   make up SCRIPT_NAME=script_name.py FLOW_TAG=flow_name DEPLOYMENT_NAME=deployment_name CRON=a_cron_string IMAGE_NAME=docker_image_name_with_tag
 ```
 
-## Taking the Pipeline Down
+## Taking the Pipeline Down (currently not working)
 
 ```bash
 make down DEPLOYMENT_NAME="flow_name/deployment_name"
@@ -75,20 +75,11 @@ make down DEPLOYMENT_NAME="flow_name/deployment_name"
 
 [exploration.ipynb](./exploration.ipynb) contains a sketch of how to use Spark to process the raw Open Library data.
 
-## Resources
-
-### Potentially Useful Python Libraries
-
-- [gzip](https://docs.python.org/3/library/gzip.html)
-
-## Up Next
-
-- [ ] Investigate how to upload large files to GCS without saving them locally.
-
 ## TODO
 
 - [ ] Running `docker history blackerby/open_library_pipeline` will display sensitive information (e.g., `PREFECT_API_KEY`). Look into how to pass secrets when building a Docker image.
-- [ ] Experiment with running an actual data processing flow.
+- [x] Experiment with running an actual data processing flow.
+- [x] Investigate how to upload large files to GCS without saving them locally.
 - [ ] Look into
   - [x] Performing initial flow runs in Docker container
   - [x] Building and applying deployments in Docker container

@@ -32,6 +32,7 @@ push-image :
 	docker push $(IMAGE_NAME)
 
 .PHONY : delete-deployment
+#currently broken
 delete-deployment :
 	prefect deployment delete $(DEPLOYMENT_NAME)
 
@@ -39,4 +40,5 @@ delete-deployment :
 up : apply-storage build-image push-image apply-compute
 
 .PHONY : down
+# currently broken
 down : delete-deployment destroy

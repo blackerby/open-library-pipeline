@@ -17,13 +17,14 @@ provider "google" {
 
 resource "google_compute_instance" "vm_instance" {
   name         = "prefect-deployment-agent-instance"
-  machine_type = "e2-highmem-4"
+  machine_type = "e2-standard-4"
   tags         = ["prefect"]
 
   boot_disk {
     auto_delete = true
     initialize_params {
       image = "cos-cloud/cos-stable"
+      size  = 30
     }
   }
 
