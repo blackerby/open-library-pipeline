@@ -8,14 +8,7 @@ spark = SparkSession.builder.master("local[*]").appName("test").getOrCreate()
 
 # %%
 df = spark.read.json(f"../first_thousand_works.json")
-# %%
-df.show()
-
-# %%
 df = df.select(F.col("string_field_4").alias("json"))
-
-# %%
-df.show()
 
 # %%
 df = df.select(
@@ -31,3 +24,22 @@ df = df.select(
 
 # %%
 df.show()
+
+# %%
+subjects_schema = T.ArrayType(T.StringType())
+# %%
+df_subjects = df.withColumn(
+    "subjects", F.from_json("subjects", subjects_schema)
+).select(
+    "title",
+    "type",
+    "revision",
+    "created",
+    "last_modified",
+    F.explode("subjects").alias("subject"),
+    "authors",
+)
+
+# %%
+df_subjects.show()
+# %%
