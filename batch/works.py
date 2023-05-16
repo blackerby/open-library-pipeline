@@ -37,9 +37,41 @@ df_subjects = df.withColumn(
     "created",
     "last_modified",
     F.explode("subjects").alias("subject"),
-    "authors",
+    F.col("authors"),
 )
 
 # %%
 df_subjects.show()
+# %%
+to_array_udf = F.udf(lambda s: s if s.startswith("[") else "[" + s + "]")
+
+# %%
+new_df = df_subjects.select(
+    "title",
+    "type",
+    "revision",
+    "created",
+    "last_modified",
+    "subject",
+    to_array_udf(F.col("authors")).alias("authors"),
+)
+# %%
+new_df.show()
+# %%
+authors_schema = T.ArrayType(T.StringType())
+# %%
+df_authors = new_df.withColumn(
+    "authors", F.from_json("authors", authors_schema)
+).select(
+    "title",
+    "type",
+    "revision",
+    "created",
+    "last_modified",
+    "subject",
+    F.explode_outer("authors").alias("author"),
+)
+# %%
+df_authors.show()
+
 # %%
