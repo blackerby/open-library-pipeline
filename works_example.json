@@ -1,0 +1,40 @@
+{
+    "last_modified": {
+        "type": "/type/datetime",
+        "value": "2018-11-15T05:43:16.922959"
+    },
+    "latest_revision": 1,
+    "key": "/works/OL17950943W",
+    "authors": [
+        {
+            "type": {
+                "key": "/type/author_role"
+            },
+            "author": {
+                "key": "/authors/OL7427341A"
+            }
+        }
+    ],
+    "created": {
+        "type": "/type/datetime",
+        "value": "2018-11-15T05:43:16.922959"
+    },
+    "title": "Index des jugements et d\u00e9lib\u00e9rations du Conseil souverain de 1663 \u00e0 1716",
+    "subject_places": [
+        "Canada",
+        "Qu\u00e9bec (Province)"
+    ],
+    "subjects": [
+        "Sources",
+        "Archives",
+        "Court records",
+        "History"
+    ],
+    "subject_times": [
+        "To 1763 (New France)"
+    ],
+    "type": {
+        "key": "/type/work"
+    },
+    "revision": 1
+}
