@@ -1,16 +1,28 @@
-# %%
-import pyspark
 from pyspark.sql import SparkSession
 import pyspark.sql.types as T
 import pyspark.sql.functions as F
 
-spark = SparkSession.builder.master("local[*]").appName("test").getOrCreate()
+spark = SparkSession.builder.appName("Works Batch").getOrCreate()
 
-# %%
-df = spark.read.json(f"../first_thousand_works.json")
-df = df.select(F.col("string_field_4").alias("json"))
+to_array_udf = F.udf(lambda s: s if (s is None or s.startswith("[")) else "[" + s + "]")
 
-# %%
+schema = T.StructType(
+    [
+        T.StructField("type", T.StringType(), True),
+        T.StructField("key", T.StringType(), True),
+        T.StructField("revision", T.IntegerType(), True),
+        T.StructField("last_modified", T.TimestampType(), True),
+        T.StructField("json", T.StringType(), True),
+    ]
+)
+
+df = (
+    spark.read.option("sep", "\t")
+    .schema(schema)
+    .csv("gs://olp_data_lake_open-library-pipeline/ol_dump_works_latest.txt")
+)
+
+df = df.select(F.col("json"))
 df = df.select(
     F.get_json_object(F.col("json"), "$.key").alias("key"),
     F.get_json_object(F.col("json"), "$.title").alias("title"),
@@ -22,31 +34,20 @@ df = df.select(
     F.get_json_object(F.col("json"), "$.authors[*].author.key").alias("authors"),
 )
 
-# %%
-df.show()
-
-# %%
-subjects_schema = T.ArrayType(T.StringType())
-# %%
-df_subjects = df.withColumn(
-    "subjects", F.from_json("subjects", subjects_schema)
+df = df.withColumn(
+    "subjects", F.from_json("subjects", T.ArrayType(T.StringType()))
 ).select(
+    "key",
     "title",
     "type",
     "revision",
     "created",
     "last_modified",
     F.explode("subjects").alias("subject"),
-    F.col("authors"),
+    "authors",
 )
 
-# %%
-df_subjects.show()
-# %%
-to_array_udf = F.udf(lambda s: s if s.startswith("[") else "[" + s + "]")
-
-# %%
-new_df = df_subjects.select(
+df = df.select(
     "title",
     "type",
     "revision",
@@ -55,13 +56,9 @@ new_df = df_subjects.select(
     "subject",
     to_array_udf(F.col("authors")).alias("authors"),
 )
-# %%
-new_df.show()
-# %%
-authors_schema = T.ArrayType(T.StringType())
-# %%
-df_authors = new_df.withColumn(
-    "authors", F.from_json("authors", authors_schema)
+
+df = df.withColumn(
+    "authors", F.from_json("authors", T.ArrayType(T.StringType()))
 ).select(
     "title",
     "type",
@@ -69,9 +66,7 @@ df_authors = new_df.withColumn(
     "created",
     "last_modified",
     "subject",
-    F.explode_outer("authors").alias("author"),
+    F.explode("authors").alias("author"),
 )
-# %%
-df_authors.show()
 
-# %%
+df.write.parquet("gs://olp_data_lake_open-library-pipeline/ol/works/", mode="overwrite")

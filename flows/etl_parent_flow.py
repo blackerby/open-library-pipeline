@@ -6,6 +6,7 @@ import shutil
 import requests
 from prefect import task, flow
 from prefect.tasks import task_input_hash
+from prefect_shell import ShellOperation
 from datetime import timedelta
 from prefect_gcp.cloud_storage import GcsBucket
 
@@ -45,6 +46,20 @@ def write_to_gcs(path: str) -> None:
     os.remove(path)
 
 
+@task()
+def gcs_to_dataproc(record_type: str) -> None:
+    cluster_name = os.environ(["CLUSTER_NAME"])
+    region = os.environ(["REGION"])
+
+    with ShellOperation(
+        commands=[
+            f"gcloud dataproc jobs submit pyspark ../batch/{record_type}.py --cluster=${cluster_name} --region=${region}"
+        ]
+    ) as spark_job_operation:
+        spark_job_process = spark_job_operation.trigger()
+        spark_job_process.wait_for_completion()
+
+
 @flow()
 def etl_web_to_gcs(dump_type: str):
     """The main ETL flow"""
@@ -60,7 +75,12 @@ def etl_parent_flow(
     dump_types: list[str] = ["ratings", "reading-log", "authors", "works"]
 ):
     for dt in dump_types:
+        print(f"Uploading {dt} to GCS")
         etl_web_to_gcs(dt)
+
+    for dt in dump_types:
+        print(f"Transforming {dt} with Dataproc")
+        gcs_to_dataproc(dt)
 
 
 if __name__ == "__main__":
