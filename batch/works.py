@@ -3,6 +3,11 @@ import pyspark.sql.types as T
 import pyspark.sql.functions as F
 
 spark = SparkSession.builder.appName("Works Batch").getOrCreate()
+# https://stackoverflow.com/a/75921500
+spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInRead", "CORRECTED")
+spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInWrite", "CORRECTED")
+spark.conf.set("spark.sql.legacy.parquet.datetimeRebaseModeInRead", "CORRECTED")
+spark.conf.set("spark.sql.legacy.parquet.datetimeRebaseModeInWrite", "CORRECTED")
 
 to_array_udf = F.udf(lambda s: s if (s is None or s.startswith("[")) else "[" + s + "]")
 
@@ -21,6 +26,12 @@ df = (
     .schema(schema)
     .csv("gs://olp_data_lake_open-library-pipeline/ol_dump_works_latest.txt")
 )
+
+df = df.repartition(24)
+df.write.parquet(
+    "gs://olp_data_lake_open-library-pipeline/ol/works/raw/", mode="overwrite"
+)
+df = spark.read.parquet("gs://olp_data_lake_open-library-pipeline/ol/works/raw/")
 
 df = df.select(F.col("json"))
 df = df.select(
@@ -48,6 +59,7 @@ df = df.withColumn(
 )
 
 df = df.select(
+    "key",
     "title",
     "type",
     "revision",
@@ -60,6 +72,7 @@ df = df.select(
 df = df.withColumn(
     "authors", F.from_json("authors", T.ArrayType(T.StringType()))
 ).select(
+    "key",
     "title",
     "type",
     "revision",
@@ -69,4 +82,6 @@ df = df.withColumn(
     F.explode("authors").alias("author"),
 )
 
-df.write.parquet("gs://olp_data_lake_open-library-pipeline/ol/works/", mode="overwrite")
+df.write.parquet(
+    "gs://olp_data_lake_open-library-pipeline/ol/works/clean/", mode="overwrite"
+)
