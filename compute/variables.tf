@@ -9,3 +9,13 @@ variable "region" {
 variable "zone" {
   default = "us-east4-c"
 }
+
+variable "CLUSTER_NAME" {
+  type        = string
+  description = "Google Dataproc cluster name"
+}
+
+variable "CLUSTER_REGION" {
+  type        = string
+  description = "GCP region for Dataproc cluster"
+}

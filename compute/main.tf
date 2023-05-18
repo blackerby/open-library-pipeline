@@ -54,6 +54,11 @@ resource "google_compute_instance" "vm_instance" {
   }
 }
 
+resource "google_dataproc_cluster" "olp-cluster" {
+  name   = var.CLUSTER_NAME
+  region = var.CLUSTER_REGION
+}
+
 module "gce-advanced-container" {
   source = "terraform-google-modules/container-vm/google"
   container = {

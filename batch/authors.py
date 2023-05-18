@@ -1,41 +1,44 @@
-import pyspark
 from pyspark.sql import SparkSession
-from pyspark.sql import types
+import pyspark.sql.types as T
+import pyspark.sql.functions as F
 
-# stub to avoid warnings
-record_type = "author"
+spark = SparkSession.builder.appName("Authors Batch").getOrCreate()
+# https://stackoverflow.com/a/75921500
+spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInRead", "CORRECTED")
+spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInWrite", "CORRECTED")
+spark.conf.set("spark.sql.legacy.parquet.datetimeRebaseModeInRead", "CORRECTED")
+spark.conf.set("spark.sql.legacy.parquet.datetimeRebaseModeInWrite", "CORRECTED")
 
-# might not use all of these
-from pyspark.sql.functions import col, explode, from_json, explode_outer
-
-spark = SparkSession.builder.master("local[*]").appName("test").getOrCreate()
-
-schema = types.StructType(
+schema = T.StructType(
     [
-        types.StructField("type", types.StringType(), True),
-        types.StructField("key", types.StringType(), True),
-        types.StructField("revision", types.IntegerType(), True),
-        types.StructField("last_modified", types.TimestampType(), True),
-        types.StructField("json", types.StringType(), True),
+        T.StructField("type", T.StringType(), True),
+        T.StructField("key", T.StringType(), True),
+        T.StructField("revision", T.IntegerType(), True),
+        T.StructField("last_modified", T.TimestampType(), True),
+        T.StructField("json", T.StringType(), True),
     ]
 )
 
 df = (
-    spark.read.option("sep", ",")
+    spark.read.option("sep", "\t")
     .option("header", "true")
     .schema(schema)
-    # parameterize on record_type [authors, works, editions, ratings, reading-log]
-    .csv(f"ol_dump_{record_type}_latest.txt")
+    .csv("gs://olp_data_lake_open-library-pipeline/ol_dump_authors_latest.txt")
 )
 
 df = df.repartition(24)
-df.write.parquet(f"ol/{record_type}/latest", mode="overwrite")
-df = spark.read.parquet(f"ol/{record_type}/latest")
+df.write.parquet(
+    "gs://olp_data_lake_open-library-pipeline/ol/authors/raw/", mode="overwrite"
+)
+df = spark.read.parquet("gs://olp_data_lake_open-library-pipeline/ol/authors/raw/")
 
-# this will vary depending on record_type. this is for authors
-json_schema = types.StructType([types.StructField("name", types.StringType(), True)])
+json_schema = T.StructType([T.StructField("name", T.StringType(), True)])
 
-# this will vary depending on record_type. this is for authors
-df.withColumn("json", from_json("json", json_schema)).select(
+
+df = df.withColumn("json", F.from_json("json", json_schema)).select(
     "type", "key", "json.name", "revision", "last_modified"
-).show()
+)
+
+df.write.parquet(
+    "gs://olp_data_lake_open-library-pipeline/ol/authors/clean/", mode="overwrite"
+)

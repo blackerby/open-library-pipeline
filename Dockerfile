@@ -14,11 +14,16 @@ ARG DEPLOYMENT_NAME
 ENV DEPLOYMENT_NAME=$DEPLOYMENT_NAME
 ARG CRON
 ENV CRON=$CRON
+ARG CLUSTER_NAME
+ENV CLUSTER_NAME=${CLUSTER_NAME}
+ARG REGION
+ENV REGION=${REGION}
 
 COPY requirements.txt .
 RUN pip install -r requirements.txt --trusted-host pypi.python.org --no-cache-dir
 
 COPY flows/ /opt/prefect/flows/
+COPY batch/ /opt/prefect/flows/batch/
 WORKDIR /opt/prefect/flows
 
 COPY run.sh .

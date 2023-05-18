@@ -1,6 +1,7 @@
 locals {
   data_lake_bucket = "olp_data_lake"
   prefect_storage  = "olp_prefect_storage"
+  dataproc_jobs    = "olp_dataproc_jobs"
 }
 
 variable "project" {}
