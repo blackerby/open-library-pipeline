@@ -2,3 +2,5 @@ prefect
 prefect_gcp
 google-cloud-dataproc
 gcsfs
+pandas
+pandas-gbq
