@@ -39,6 +39,4 @@ df = df.withColumn("json", F.from_json("json", json_schema)).select(
     "type", "key", "json.name", "revision", "last_modified"
 )
 
-df.write.parquet(
-    "gs://olp_data_lake_open-library-pipeline/ol/authors/clean/", mode="overwrite"
-)
+df.write.format("bigquery").option("writeMethod", "direct").save("open_library.authors")

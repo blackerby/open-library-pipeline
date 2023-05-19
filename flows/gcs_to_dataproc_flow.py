@@ -32,11 +32,16 @@ def gcs_to_dataproc(record_type: str):
     job.pyspark_job.main_python_file_uri = (
         f"gs://{gcs_jobs_bucket.bucket}/batch/{record_type}.py"
     )
+    job.pyspark_job.jar_file_uris = [
+        "gs://spark-lib/bigquery/spark-bigquery-latest_2.12.jar"
+    ]
     job.placement.cluster_name = cluster_name
     request = dataproc_v1.SubmitJobRequest(
         project_id="open-library-pipeline", region=region, job=job
     )
-    operation = client.submit_job_as_operation(request=request)
+    operation = client.submit_job_as_operation(
+        request=request,
+    )
     print("Waiting for operation to complete...")
     response = operation.result()
     print(response)

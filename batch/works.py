@@ -82,6 +82,4 @@ df = df.withColumn(
     F.explode("authors").alias("author"),
 )
 
-df.write.parquet(
-    "gs://olp_data_lake_open-library-pipeline/ol/works/clean/", mode="overwrite"
-)
+df.write.format("bigquery").option("writeMethod", "direct").save("open_library.works")
