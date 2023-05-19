@@ -1,0 +1,4 @@
+prefect
+prefect_gcp
+google-cloud-dataproc
+gcsfs

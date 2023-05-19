@@ -2,7 +2,6 @@ import os
 
 from prefect import task, flow
 from prefect_gcp import GcpCredentials
-from prefect.tasks import task_input_hash
 from prefect_gcp.cloud_storage import GcsBucket
 from google.cloud import dataproc_v1
 
