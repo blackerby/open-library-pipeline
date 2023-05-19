@@ -66,5 +66,3 @@ make up IMAGE_NAME=docker_image_name_with_tag
 ## TODO
 
 - [ ] Running `docker history blackerby/open_library_pipeline` will display sensitive information (e.g., `PREFECT_API_KEY`). Look into how to pass secrets when building a Docker image.
-- [ ] GCS to BigQuery for `ratings` and `reading-log`
-  - `pandas-gbq`
