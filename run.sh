@@ -3,16 +3,11 @@
 PREFECT_API_KEY=$1
 PREFECT_WORKSPACE=$2
 PREFECT_API_URL=$3
-SCRIPT_NAME=$4
-FLOW_TAG=$5
-DEPLOYMENT_NAME=$6
-cron=$7
 
 prefect cloud login -k $PREFECT_API_KEY -w $PREFECT_WORKSPACE
 prefect config set PREFECT_API_URL=$PREFECT_API_URL
-prefect deployment build $SCRIPT_NAME:$FLOW_TAG \
-    --name $DEPLOYMENT_NAME \
-    --storage-block gcs/open-library-pipeline-gcs-storage \
-    --cron "$CRON" \
-    --apply && \
+
+python web_to_gcs_deployment.py
+python gcs_to_dataproc_deployment.py
+
 prefect agent start -q 'default'

@@ -25,20 +25,11 @@ build-and-push : build-image push-image
 
 .PHONY : build-image
 build-image :
-	./build.sh $(SCRIPT_NAME) $(FLOW_TAG) $(DEPLOYMENT_NAME) $(CRON) $(CLUSTER_NAME) $(REGION)
+	./build.sh
 
 .PHONY : push-image
 push-image :
 	docker push $(IMAGE_NAME)
 
-.PHONY : delete-deployment
-#currently broken
-delete-deployment :
-	prefect deployment delete $(DEPLOYMENT_NAME)
-
 .PHONY : up
 up : apply-storage build-image push-image apply-compute
-
-.PHONY : down
-# currently broken
-down : delete-deployment destroy
