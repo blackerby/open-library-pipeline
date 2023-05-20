@@ -37,6 +37,7 @@ df = df.select(F.col("json"))
 df = df.select(
     F.get_json_object(F.col("json"), "$.key").alias("key"),
     F.get_json_object(F.col("json"), "$.title").alias("title"),
+    F.get_json_object(F.col("json"), "$.first_publish_date").alias("first_published"),
     F.get_json_object(F.col("json"), "$.type.key").alias("type"),
     F.get_json_object(F.col("json"), "$.revision").alias("revision"),
     F.get_json_object(F.col("json"), "$.created.value").alias("created"),
@@ -50,22 +51,24 @@ df = df.withColumn(
 ).select(
     "key",
     "title",
+    "first_published",
     "type",
     "revision",
     "created",
     "last_modified",
-    F.explode("subjects").alias("subject"),
+    "subjects",
     "authors",
 )
 
 df = df.select(
     "key",
     "title",
+    "first_published",
     "type",
     "revision",
     "created",
     "last_modified",
-    "subject",
+    "subjects",
     to_array_udf(F.col("authors")).alias("authors"),
 )
 
@@ -74,12 +77,13 @@ df = df.withColumn(
 ).select(
     "key",
     "title",
+    "first_published",
     "type",
     "revision",
     "created",
     "last_modified",
-    "subject",
-    F.explode("authors").alias("author"),
+    "subjects",
+    "authors",
 )
 
 df.write.format("bigquery").option("writeMethod", "direct").save("open_library.works")
